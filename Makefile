@@ -101,31 +101,34 @@ floats: $(FLOATS_GEN)
 validate_tests:
 	python3 validate/validate_tests.py
 
-bench_fpfmt: bench/bench_fpfmt
+bench/results:
+	mkdir -p bench/results
+
+bench_fpfmt: bench/bench_fpfmt | bench/results
 	@echo "--- bench_fpfmt ---"; \
 	start=$$(date +%s); \
 	./bench/bench_fpfmt; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
-bench_fpfmt_unopt: bench/bench_fpfmt_unopt
+bench_fpfmt_unopt: bench/bench_fpfmt_unopt | bench/results
 	@echo "--- bench_fpfmt_unopt ---"; \
 	start=$$(date +%s); \
 	./bench/bench_fpfmt_unopt; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
-bench_uscale: bench/bench_uscale
+bench_uscale: bench/bench_uscale | bench/results
 	@echo "--- bench_uscale ---"; \
 	start=$$(date +%s); \
 	./bench/bench_uscale; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
-bench_fpfmt_c: bench/bench_fpfmt_c
+bench_fpfmt_c: bench/bench_fpfmt_c | bench/results
 	@echo "--- bench_fpfmt_c ---"; \
 	start=$$(date +%s); \
 	./bench/bench_fpfmt_c; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
-bench_cpp: bench/bench_cpp
+bench_cpp: bench/bench_cpp | bench/results
 	@echo "--- bench_cpp ---"; \
 	start=$$(date +%s); \
 	./bench/bench_cpp; \
@@ -143,19 +146,19 @@ bench_denoise: floats
 	echo "\ntotal elapsed: $$((end - start))s"
 	$(MAKE) clean
 
-bench_ruby:
+bench_ruby: | bench/results
 	@echo "--- bench_ruby ---"; \
 	start=$$(date +%s); \
 	ruby bench/bench_ruby.rb; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
-bench_scheme:
+bench_scheme: | bench/results
 	@echo "--- bench_scheme ---"; \
 	start=$$(date +%s); \
 	chez --script bench/bench_scheme.ss; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
-bench_fpfmt_ss: $(FFI_LIB)
+bench_fpfmt_ss: $(FFI_LIB) | bench/results
 	@echo "--- bench_fpfmt_ss ---"; \
 	start=$$(date +%s); \
 	chez --script bench/bench_fpfmt_ss.ss; \

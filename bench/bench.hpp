@@ -213,7 +213,7 @@ inline std::vector<double> load_floats(const char* path = "data/bench_floats.csv
 		exit(1);
 	}
 	char line[64];
-	fgets(line, sizeof(line), f);  // skip header
+	if (!fgets(line, sizeof(line), f)) { fclose(f); return out; }  // empty file, nothing to skip or read
 	while (fgets(line, sizeof(line), f)) {
 		uint64_t bits = strtoull(line, nullptr, 10);
 		double x;

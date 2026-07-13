@@ -260,7 +260,7 @@ static double *load_floats(const char *path, int *nOut) {
 		exit(1);
 	}
 	char line[64];
-	fgets(line, sizeof(line), f);  // skip header
+	if (!fgets(line, sizeof(line), f)) { fclose(f); *nOut = 0; return NULL; }  // empty file, nothing to skip or read
 	int cap = 16384, n = 0;
 	double *out = (double*)malloc(cap * sizeof(double));
 	while (fgets(line, sizeof(line), f)) {

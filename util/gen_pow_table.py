@@ -31,13 +31,13 @@ enum {{
 \tpow10Max = {max_exp},
 }};
 
-static uint64_t uint64pow10[] = {{
+[[maybe_unused]] static uint64_t uint64pow10[] = {{
 \t{uint64pow10_entries}
 }};
 
 // pow10Tab holds 128-bit mantissas of powers of 10.
 // The values are scaled so the high bit is always set.
-static uint64_t pow10Tab[pow10Max-pow10Min+1][2] = {{
+[[maybe_unused]] static uint64_t pow10Tab[pow10Max-pow10Min+1][2] = {{
 """
 
 BOTTOM = """\

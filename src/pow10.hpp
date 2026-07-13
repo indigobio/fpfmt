@@ -16,13 +16,13 @@ enum {
 	pow10Max = 347,
 };
 
-static uint64_t uint64pow10[] = {
+[[maybe_unused]] static uint64_t uint64pow10[] = {
 	1ULL, 10ULL, 100ULL, 1000ULL, 10000ULL, 100000ULL, 1000000ULL, 10000000ULL, 100000000ULL, 1000000000ULL, 10000000000ULL, 100000000000ULL, 1000000000000ULL, 10000000000000ULL, 100000000000000ULL, 1000000000000000ULL, 10000000000000000ULL, 100000000000000000ULL, 1000000000000000000ULL, 10000000000000000000ULL
 };
 
 // pow10Tab holds 128-bit mantissas of powers of 10.
 // The values are scaled so the high bit is always set.
-static uint64_t pow10Tab[pow10Max-pow10Min+1][2] = {
+[[maybe_unused]] static uint64_t pow10Tab[pow10Max-pow10Min+1][2] = {
 	{0xfa8fd5a0081c0289, 0xe8cd3796329f1bac}, // 1e-348 * 2**1284
 	{0x9c99e58405118196, 0xf18042bddfa3714b}, // 1e-347 * 2**1280
 	{0xc3c05ee50655e1fb, 0xade0536d578c4d9e}, // 1e-346 * 2**1277

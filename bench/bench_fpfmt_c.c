@@ -2,8 +2,7 @@
 #include "../src/fpfmt_c.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// helpers -- canonical text/raw digit representations, generated via fixedWidth+fmt like the
-// other benches
+// helpers
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static char *gen_text(double *f, int nf, int *lenOut) {
 	char tmp[64];
@@ -20,7 +19,8 @@ static char *gen_text(double *f, int nf, int *lenOut) {
 		len += n;
 		buf[len++] = '\n';
 	}
-	buf[len - 1] = '\0';
+	if (len > 0) buf[len - 1] = '\0';
+	else buf[0] = '\0';
 	*lenOut = len;
 	return buf;
 }
@@ -48,9 +48,7 @@ static int64_t *gen_raw(double *f, int nf) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// format wrappers -- thin signature adapters over fpfmt_c.h's fixedWidth/shortWidth/fmt/format(),
-// matching the void(char*,double)/void(char*,double,int)/double(char*,char*) shapes bench_fixed/
-// bench_short/bench_parse & co. expect
+// format wrappers
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void fpfmtc_fixed(char *dst, double f, int n) {
 	FloatRep fr = fixedWidth(f, n);

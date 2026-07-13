@@ -22,7 +22,8 @@ static char *gen_text(double *f, int nf, int *lenOut) {
 		len += n;
 		buf[len++] = '\n';
 	}
-	buf[len - 1] = '\0';
+	if (len > 0) buf[len - 1] = '\0';
+	else buf[0] = '\0';
 	*lenOut = len;
 	return buf;
 }
@@ -53,8 +54,7 @@ static int64_t *gen_raw(double *f, int nf) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// format wrappers -- thin signature adapters over uscale.c's formatComplete(), matching the
-// void(char*,double)/void(char*,double,int) shapes bench_fixed/bench_short & co. expect
+// format wrappers
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void uscale_format_short(char *dst, double f) { formatComplete(dst, f, 0); }
 static void uscale_format_fixed(char *dst, double f, int nd) { formatComplete(dst, f, nd); }

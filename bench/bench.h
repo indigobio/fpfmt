@@ -1,6 +1,10 @@
 #ifndef BENCH_H
 #define BENCH_H
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,0 +1,42 @@
+# internal files/directories
+.*
+!.gitignore
+
+# generated results
+*.csv
+*.html
+*.pdf
+
+# old files/directories
+old
+*_old
+old_*
+*_old_*
+
+# compilation cache & build results
+*__pycache__/
+build-c/
+build-cpp/
+build-wasm/
+
+# clean bench directory
+bench/*
+!bench/results/
+
+# clean src & test directories
+src/*
+tests/*
+
+# allow header files
+!*.h
+!*.hpp
+
+# clean util directory
+util/*
+
+# allow source files
+!*.c
+!*.cpp
+!*.rb
+!*.ss
+!*.py

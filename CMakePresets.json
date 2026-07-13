@@ -1,0 +1,36 @@
+{
+	"version": 3,
+	"cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+	"configurePresets": [
+		{
+			"name": "cpp",
+			"displayName": "native fpfmt.cpp",
+			"binaryDir": "${sourceDir}/build-cpp",
+			"cacheVariables": {
+				"FPFMT_SOURCE": "cpp"
+			}
+		},
+		{
+			"name": "c",
+			"displayName": "native fpfmt_c.c",
+			"binaryDir": "${sourceDir}/build-c",
+			"cacheVariables": {
+				"FPFMT_SOURCE": "c"
+			}
+		},
+		{
+			"name": "wasm",
+			"displayName": "wasm fpfmt_c.c (Emscripten -- needs emsdk_env.sh sourced)",
+			"binaryDir": "${sourceDir}/build-wasm",
+			"cacheVariables": {
+				"FPFMT_SOURCE": "c",
+				"FPFMT_WASM": "ON"
+			}
+		}
+	],
+	"buildPresets": [
+		{ "name": "cpp", "configurePreset": "cpp" },
+		{ "name": "c", "configurePreset": "c" },
+		{ "name": "wasm", "configurePreset": "wasm" }
+	]
+}

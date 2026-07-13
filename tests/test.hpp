@@ -46,12 +46,19 @@ bool parse_ivy_line(const std::string& line, IvyTest& out) {
 	if (line.empty() || line[0] != '(') return false;
 	std::istringstream ss(line);
 	char c;
-	std::string ftoa, is;
-	double f;
+	std::string ftoa, fstr, is;
 	uint64_t d;
 	int n, p;
-	ss >> c >> n >> ftoa >> f >> c >> is >> d >> p;
+	ss >> c >> n >> ftoa;
+
+	std::getline(ss, fstr, ')');
+	ss >> is >> d >> p;
 	if (ss.fail()) return false;
+
+	char* end;
+	double f = std::strtod(fstr.c_str(), &end);
+	if (end == fstr.c_str()) return false;
+
 	out = { n, f, d, p };
 	return true;
 }

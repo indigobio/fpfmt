@@ -23,14 +23,13 @@ def _cpu_brand():
 					if line.lower().startswith("model name"):
 						return line.split(":", 1)[1].strip()
 		if system == "Windows":
-			try:
-				out = subprocess.check_output(["wmic", "cpu", "get", "name"], text=True, timeout=2)
-				return out.splitlines()[1].strip()
-			except Exception:
-				out = subprocess.check_output(
-					["powershell", "-NoProfile", "-Command", "(Get-CimInstance Win32_Processor).Name"],
-					text=True, timeout=3)
-				return out.strip()
+			import winreg
+			key = winreg.OpenKey(
+				winreg.HKEY_LOCAL_MACHINE,
+				r"HARDWARE\DESCRIPTION\System\CentralProcessor\0"
+			)
+			name, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+			return name.strip()
 	except Exception:
 		pass
 	return None

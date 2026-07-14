@@ -12,6 +12,8 @@ OBJ = src/fpfmt.o
 OBJ_UNOPT = src/fpfmt_unopt.o
 OBJ_C = src/fpfmt_c.o
 
+CHEZ = chez
+
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	SHARED_EXT = dylib
@@ -155,13 +157,13 @@ bench_ruby: | bench/results
 bench_scheme: | bench/results
 	@echo "--- bench_scheme ---"; \
 	start=$$(date +%s); \
-	chez --script bench/bench_scheme.ss; \
+	$(CHEZ) --script bench/bench_scheme.ss; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
 bench_fpfmt_ss: $(FFI_LIB) | bench/results
 	@echo "--- bench_fpfmt_ss ---"; \
 	start=$$(date +%s); \
-	chez --script bench/bench_fpfmt_ss.ss; \
+	$(CHEZ) --script bench/bench_fpfmt_ss.ss; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
 bench: floats clean_results

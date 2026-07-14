@@ -7,7 +7,7 @@ int main() {
 	auto floats = gen_floats(10000);
 
 	const char* path = "data/bench_floats.csv";
-	FILE* f = fopen(path, "w");
+	FILE* f = fopen(path, "wb");
 	if (!f) { printf("ERROR: could not open %s\n", path); return 1; }
 	fprintf(f, "bits\n");
 	for (double x : floats) {

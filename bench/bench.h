@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // timing
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static uint64_t now_ns(void) {
+static inline uint64_t now_ns(void) {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
@@ -27,7 +27,7 @@ static uint64_t now_ns(void) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // bench harness
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static double bench_fixed(char *dst, int count, double *f, int nf, int digits, void (* volatile fn)(char *, double, int)) {
+static inline double bench_fixed(char *dst, int count, double *f, int nf, int digits, void (* volatile fn)(char *, double, int)) {
 	uint64_t start = now_ns();
 	for (int i = 0; i < count; i++)
 		for (int j = 0; j < nf; j++)
@@ -35,7 +35,7 @@ static double bench_fixed(char *dst, int count, double *f, int nf, int digits, v
 	return (double)(now_ns() - start) / (count * nf);
 }
 
-static double bench_short(char *dst, int count, double *f, int nf, void (* volatile fn)(char *, double)) {
+static inline double bench_short(char *dst, int count, double *f, int nf, void (* volatile fn)(char *, double)) {
 	uint64_t start = now_ns();
 	for (int i = 0; i < count; i++)
 		for (int j = 0; j < nf; j++)
@@ -43,7 +43,7 @@ static double bench_short(char *dst, int count, double *f, int nf, void (* volat
 	return (double)(now_ns() - start) / (count * nf);
 }
 
-static double bench_short_raw(uint64_t *dp, int64_t *pp, int count, double *f, int nf, void (* volatile fn)(uint64_t *, int64_t *, double)) {
+static inline double bench_short_raw(uint64_t *dp, int64_t *pp, int count, double *f, int nf, void (* volatile fn)(uint64_t *, int64_t *, double)) {
 	uint64_t start = now_ns();
 	for (int i = 0; i < count; i++)
 		for (int j = 0; j < nf; j++)
@@ -51,7 +51,7 @@ static double bench_short_raw(uint64_t *dp, int64_t *pp, int count, double *f, i
 	return (double)(now_ns() - start) / (count * nf);
 }
 
-static double bench_parse_raw(int count, int64_t *raw, int nraw, double (* volatile fn)(uint64_t, int)) {
+static inline double bench_parse_raw(int count, int64_t *raw, int nraw, double (* volatile fn)(uint64_t, int)) {
 	double total = 0;
 	uint64_t start = now_ns();
 	for (int i = 0; i < count; i++) {
@@ -63,7 +63,7 @@ static double bench_parse_raw(int count, int64_t *raw, int nraw, double (* volat
 	return (double)(now_ns() - start) / (count * (nraw / 2));
 }
 
-static double bench_parse(int count, char *text, double (* volatile fn)(char *, char *)) {
+static inline double bench_parse(int count, char *text, double (* volatile fn)(char *, char *)) {
 	double total = 0;
 	uint64_t start = now_ns();
 	for (int i = 0; i < count; i++) {
@@ -89,14 +89,14 @@ static double bench_parse(int count, char *text, double (* volatile fn)(char *, 
 // scatter -- per-input timing, reps per input, median taken; writes straight to CSV since C has
 // no convenient vector<ScatterPoint> to hand off like bench.hpp's write_scatter_csv
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static int fileExists(const char *path) {
+static inline int fileExists(const char *path) {
 	FILE *f = fopen(path, "r");
 	if (!f) return 0;
 	fclose(f);
 	return 1;
 }
 
-static FILE *openScatterCsv(const char *path) {
+static inline FILE *openScatterCsv(const char *path) {
 	int exists = fileExists(path);
 	FILE *f = fopen(path, "a");
 	if (!f) { printf("ERROR: could not open %s\n", path); return NULL; }
@@ -104,12 +104,12 @@ static FILE *openScatterCsv(const char *path) {
 	return f;
 }
 
-static int cmpDouble(const void *a, const void *b) {
+static inline int cmpDouble(const void *a, const void *b) {
 	double da = *(const double *)a, db = *(const double *)b;
 	return (da > db) - (da < db);
 }
 
-static void scatter_fixed(const char *impl, double *f, int nf, int digits, void (* volatile fn)(char *, double, int), const char *path) {
+static inline void scatter_fixed(const char *impl, double *f, int nf, int digits, void (* volatile fn)(char *, double, int), const char *path) {
 	FILE *out = openScatterCsv(path);
 	if (!out) return;
 	char dst[64];
@@ -128,7 +128,7 @@ static void scatter_fixed(const char *impl, double *f, int nf, int digits, void 
 	printf("appended to %s\n", path);
 }
 
-static void scatter_short(const char *impl, double *f, int nf, void (* volatile fn)(char *, double), const char *path) {
+static inline void scatter_short(const char *impl, double *f, int nf, void (* volatile fn)(char *, double), const char *path) {
 	FILE *out = openScatterCsv(path);
 	if (!out) return;
 	char dst[64];
@@ -147,7 +147,7 @@ static void scatter_short(const char *impl, double *f, int nf, void (* volatile 
 	printf("appended to %s\n", path);
 }
 
-static void scatter_short_raw(const char *impl, double *f, int nf, void (* volatile fn)(uint64_t *, int64_t *, double), const char *path) {
+static inline void scatter_short_raw(const char *impl, double *f, int nf, void (* volatile fn)(uint64_t *, int64_t *, double), const char *path) {
 	FILE *out = openScatterCsv(path);
 	if (!out) return;
 	uint64_t dp;
@@ -167,7 +167,7 @@ static void scatter_short_raw(const char *impl, double *f, int nf, void (* volat
 	printf("appended to %s\n", path);
 }
 
-static void scatter_parse_raw(const char *impl, int64_t *raw, int nraw, double (* volatile fn)(uint64_t, int), const char *path) {
+static inline void scatter_parse_raw(const char *impl, int64_t *raw, int nraw, double (* volatile fn)(uint64_t, int), const char *path) {
 	FILE *out = openScatterCsv(path);
 	if (!out) return;
 	double times[REPS];
@@ -190,7 +190,7 @@ static void scatter_parse_raw(const char *impl, int64_t *raw, int nraw, double (
 	printf("appended to %s\n", path);
 }
 
-static void scatter_parse_text(const char *impl, char **texts, int ntexts, double (* volatile fn)(char *, char *), const char *path) {
+static inline void scatter_parse_text(const char *impl, char **texts, int ntexts, double (* volatile fn)(char *, char *), const char *path) {
 	FILE *out = openScatterCsv(path);
 	if (!out) return;
 	double times[REPS];
@@ -222,7 +222,7 @@ typedef struct {
 	double median_ns;
 } BenchResult;
 
-static void write_csv(BenchResult *results, int n, const char *path) {
+static inline void write_csv(BenchResult *results, int n, const char *path) {
 	int exists = fileExists(path);
 	FILE *f = fopen(path, "a");
 	if (!f) { printf("ERROR: could not open %s\n", path); return; }
@@ -243,7 +243,7 @@ typedef struct {
 	char *value;
 } ValidatePoint;
 
-static void write_validate_csv(ValidatePoint *points, int n, const char *path) {
+static inline void write_validate_csv(ValidatePoint *points, int n, const char *path) {
 	int exists = fileExists(path);
 	FILE *f = fopen(path, "a");
 	if (!f) { printf("ERROR: could not open %s\n", path); return; }
@@ -257,7 +257,7 @@ static void write_validate_csv(ValidatePoint *points, int n, const char *path) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // input loading -- reads the same data/bench_floats.csv the other benches share
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static double *load_floats(const char *path, int *nOut) {
+static inline double *load_floats(const char *path, int *nOut) {
 	FILE *f = fopen(path, "r");
 	if (!f) {
 		printf("ERROR: could not open %s -- run `make floats` first\n", path);

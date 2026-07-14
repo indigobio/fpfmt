@@ -50,11 +50,12 @@ IMPL_COLORS = {
 	"fpfmt":        "#2ca02c",
 	"uscale": 			"#1f77b4",
 	"native_cpp":		"#282BD2",
+	"native_c":     "#8c564b",
 	"native_ruby":  "#d62728",
 	"native_scheme":"#9E36F8",
 }
 
-IMPL_ORDER = ["fpfmt", "fpfmt_unopt", "fpfmt_ss", "fpfmt_c", "uscale", "native_cpp", "native_ruby", "native_scheme"]
+IMPL_ORDER = ["fpfmt", "fpfmt_unopt", "fpfmt_ss", "fpfmt_c", "uscale", "native_cpp", "native_c", "native_ruby", "native_scheme"]
 
 PLOTLY_CONFIG = {
 	"scrollZoom": True,

@@ -32,7 +32,7 @@ BENCH_SRCS = $(wildcard bench/bench_*.cpp)
 BENCHES = $(BENCH_SRCS:.cpp=)
 FLOATS_GEN = bench/gen_floats
 
-.PHONY: all test test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_ruby bench_scheme bench_fpfmt_ss
+.PHONY: all test test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_c bench_ruby bench_scheme bench_fpfmt_ss
 
 all: $(OBJ)
 
@@ -68,6 +68,9 @@ bench/bench_uscale: bench/bench_uscale.c src/uscale.c src/pow10.h bench/bench.h
 
 bench/bench_fpfmt_c: bench/bench_fpfmt_c.c $(OBJ_C) src/fpfmt_c.h bench/bench.h
 	$(CC) $(CFLAGS_C99) $< $(OBJ_C) -lm -o $@
+
+bench/bench_c: bench/bench_c.c bench/bench.h
+	$(CC) $(CFLAGS_C99) $< -lm -o $@
 
 $(FFI_LIB): $(SRC_FFI) $(SRC) src/fpfmt.hpp
 	$(CXX) $(CXXFLAGS) $(SHARED_FLAG) $(SRC_FFI) $(SRC) -o $(FFI_LIB)
@@ -136,13 +139,19 @@ bench_cpp: bench/bench_cpp | bench/results
 	./bench/bench_cpp; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
+bench_c: bench/bench_c | bench/results
+	@echo "--- bench_c ---"; \
+	start=$$(date +%s); \
+	./bench/bench_c; \
+	echo "elapsed: $$(($$(date +%s) - start))s\n"
+
 DENOISE_REPS = 3
 bench_denoise: floats
 	@echo "\n=== running native benchmarks (x$(DENOISE_REPS)) ===\n"; \
 	start=$$(date +%s); \
 	for i in $$(seq 1 $(DENOISE_REPS)); do \
 		echo "\n--- denoising bench pass $$i/$(DENOISE_REPS) ---"; \
-		$(MAKE) bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp; \
+		$(MAKE) bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_c; \
 	done; \
 	end=$$(date +%s); \
 	echo "\ntotal elapsed: $$((end - start))s"
@@ -173,6 +182,7 @@ bench: floats clean_results
 	$(MAKE) bench_fpfmt_unopt; \
 	$(MAKE) bench_uscale bench_fpfmt_c; \
 	$(MAKE) bench_cpp; \
+	$(MAKE) bench_c; \
 	$(MAKE) bench_ruby; \
 	$(MAKE) bench_scheme; \
 	$(MAKE) bench_fpfmt_ss; \
@@ -185,7 +195,7 @@ validate_benches:
 	python3 validate/validate_benches.py
 
 clean:
-	rm -f $(OBJ) $(TESTS) $(OBJ_UNOPT) $(OBJ_C) $(TESTS_C) $(BENCHES) bench/bench_uscale bench/bench_fpfmt_c $(FLOATS_GEN) $(FFI_LIB)
+	rm -f $(OBJ) $(TESTS) $(OBJ_UNOPT) $(OBJ_C) $(TESTS_C) $(BENCHES) bench/bench_uscale bench/bench_fpfmt_c bench/bench_c $(FLOATS_GEN) $(FFI_LIB)
 	rm -rf $(wildcard tests/*.dSYM) $(wildcard bench/*.dSYM)
 
 clean_results:

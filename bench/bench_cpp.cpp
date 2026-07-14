@@ -14,10 +14,8 @@ static void native_format_fixed(char *dst, double f, int nd) {
 }
 
 static double native_parse_text(char *start, char *end) {
-	char saved = *end;
-	*end = '\0';
-	double f = strtod(start, nullptr);
-	*end = saved;
+	double f;
+	std::from_chars(start, end, f);
 	return f;
 }
 

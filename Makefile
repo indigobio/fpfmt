@@ -30,7 +30,7 @@ TEST_SRCS_C = $(wildcard tests/*_c.c)
 TESTS_C = $(TEST_SRCS_C:.c=)
 BENCH_SRCS = $(wildcard bench/bench_*.cpp)
 BENCHES = $(BENCH_SRCS:.cpp=)
-FLOATS_GEN = bench/gen_floats
+FLOATS_GEN = util/gen_floats
 
 .PHONY: all test test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_c bench_ruby bench_scheme bench_fpfmt_ss
 

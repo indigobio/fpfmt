@@ -115,33 +115,33 @@ inline void scatter_fixed(const char* impl, double* f, int nf, int digits, void 
 }
 
 inline void scatter_short(const char* impl, double* f, int nf, void (*fn)(char*, double), std::vector<ScatterPoint>& out, int reps = 25, int batch = 1000) {
-    char dst[64];
-    std::vector<double> times(reps);
-    for (int i = 0; i < nf; i++) {
-			for (int r = 0; r < reps; r++) {
-				uint64_t s = now_ns();
-				for (int b = 0; b < batch; b++)
-					fn(dst, f[i]);
-				times[r] = (double)(now_ns() - s) / batch;
-			}
-			std::sort(times.begin(), times.end());
-			out.push_back({impl, std::log2(std::abs(f[i])), times[reps / 2]});
-    }
+	char dst[64];
+	std::vector<double> times(reps);
+	for (int i = 0; i < nf; i++) {
+		for (int r = 0; r < reps; r++) {
+			uint64_t s = now_ns();
+			for (int b = 0; b < batch; b++)
+				fn(dst, f[i]);
+			times[r] = (double)(now_ns() - s) / batch;
+		}
+		std::sort(times.begin(), times.end());
+		out.push_back({impl, std::log2(std::abs(f[i])), times[reps / 2]});
+	}
 }
 
 inline void scatter_short_raw(const char* impl, double* f, int nf, void (*fn)(uint64_t*, int64_t*, double), std::vector<ScatterPoint>& out, int reps = 25, int batch = 1000) {
-    uint64_t dp; int64_t pp;
-    std::vector<double> times(reps);
-    for (int i = 0; i < nf; i++) {
-			for (int r = 0; r < reps; r++) {
-				uint64_t s = now_ns();
-				for (int b = 0; b < batch; b++)
-					fn(&dp, &pp, f[i]);
-				times[r] = (double)(now_ns() - s) / batch;
-			}
-			std::sort(times.begin(), times.end());
-			out.push_back({impl, std::log2(std::abs(f[i])), times[reps / 2]});
-    }
+	uint64_t dp; int64_t pp;
+	std::vector<double> times(reps);
+	for (int i = 0; i < nf; i++) {
+		for (int r = 0; r < reps; r++) {
+			uint64_t s = now_ns();
+			for (int b = 0; b < batch; b++)
+				fn(&dp, &pp, f[i]);
+			times[r] = (double)(now_ns() - s) / batch;
+		}
+		std::sort(times.begin(), times.end());
+		out.push_back({impl, std::log2(std::abs(f[i])), times[reps / 2]});
+	}
 }
 
 inline void scatter_parse_raw(const char* impl, int64_t* raw, int nraw, double (*fn)(uint64_t, int), std::vector<ScatterPoint>& out, int reps = 25, int batch = 1000) {
@@ -164,47 +164,27 @@ inline void scatter_parse_raw(const char* impl, int64_t* raw, int nraw, double (
 }
 
 inline void scatter_parse_text(const char* impl, std::vector<std::string>& texts, double (*fn)(char* start, char* end), std::vector<ScatterPoint>& out, int reps = 25, int batch = 1000) {
-    std::vector<double> times(reps);
-    for (auto& s : texts) {
-			char* start = const_cast<char*>(s.c_str());
-			char* end   = start + s.size();
-			double ref  = fn(start, end);
-			for (int r = 0; r < reps; r++) {
-				uint64_t ts = now_ns();
-				for (int b = 0; b < batch; b++) {
-					volatile double sink = fn(start, end);
-					(void)sink;
-				}
-				times[r] = (double)(now_ns() - ts) / batch;
+	std::vector<double> times(reps);
+	for (auto& s : texts) {
+		char* start = const_cast<char*>(s.c_str());
+		char* end   = start + s.size();
+		double ref  = fn(start, end);
+		for (int r = 0; r < reps; r++) {
+			uint64_t ts = now_ns();
+			for (int b = 0; b < batch; b++) {
+				volatile double sink = fn(start, end);
+				(void)sink;
 			}
-			std::sort(times.begin(), times.end());
-			out.push_back({impl, std::log2(std::abs(ref)), times[reps / 2]});
-    }
+			times[r] = (double)(now_ns() - ts) / batch;
+		}
+		std::sort(times.begin(), times.end());
+		out.push_back({impl, std::log2(std::abs(ref)), times[reps / 2]});
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // input generation
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-inline uint64_t lcg_next(uint64_t& state) {
-	state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-	return state;
-}
-
-inline std::vector<double> gen_floats(int n, uint64_t seed = 12345) {
-	std::vector<double> out;
-	out.reserve(n);
-	uint64_t state = seed;
-	for (int i = 0; i < n; i++) {
-		uint64_t x = lcg_next(state);
-		x = x % ((1ULL << 63) - (1ULL << 52));
-		x += 1;
-		double f;
-		memcpy(&f, &x, 8);
-		out.push_back(f);
-	}
-	return out;
-}
-
 inline std::vector<double> load_floats(const char* path = "data/bench_floats.csv") {
 	std::vector<double> out;
 	FILE* f = fopen(path, "r");

@@ -43,11 +43,11 @@ else()
 	message(STATUS "fpfmt: compiler: ${CMAKE_C_COMPILER_ID} (${CMAKE_C_COMPILER})")
 
 	if(FPFMT_WASM)
-		add_executable(fpfmt "${FPFMT_SRC_DIR}/fpfmt_c.c")
+		add_executable(fpfmt "${FPFMT_SRC_DIR}/fpfmt_c.c" "${FPFMT_SRC_DIR}/wasm_wrapper.c")
 		target_link_options(fpfmt PRIVATE
 			"SHELL:-s MODULARIZE=1"
 			"SHELL:-s EXPORT_NAME=FpfmtModule"
-			"SHELL:-s EXPORTED_FUNCTIONS=['_format','_parseText']"
+			"SHELL:-s EXPORTED_FUNCTIONS=['_fpfmt_format_short_str','_fpfmt_format_fixed_str','_fpfmt_parse_text_str']"
 			"SHELL:-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']"
 			"SHELL:-s ENVIRONMENT=web")
 	else()

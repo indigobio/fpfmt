@@ -1,6 +1,3 @@
-// extern "C" shims over fpfmt.hpp's C++-linkage functions -- Chez Scheme's
-// foreign-procedure looks up plain, unmangled symbols, so bench_fpfmt_ss.ss
-// needs this rather than linking fpfmt.cpp directly.
 #include "fpfmt.hpp"
 
 extern "C" {

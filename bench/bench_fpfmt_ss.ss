@@ -158,10 +158,6 @@
 (define floats (load-floats floats-csv))
 (printf "loaded ~a floats~n" (length floats))
 
-;;; fpfmt_ss is benched through fpfmt::format(), same as fpfmt/native_cpp/native_ruby/
-;;; native_scheme's format_* entries -- see the comment in bench_scheme.ss for why the
-;;; wrapper (not the raw fixedWidth/shortWidth+fmt core) is the apples-to-apples
-;;; comparison. This variant additionally pays for the Scheme->C FFI call overhead.
 (define (scatter-inputs-for floats) (map (lambda (f) (cons f (/ (log (abs f)) (log 2)))) floats))
 
 ;;; fixed6
@@ -198,5 +194,4 @@
 (append-validate validate-csv "fpfmt_ss" "format_short" (map fpfmt-format-short floats))
 (append-validate validate-csv "fpfmt_ss" "format_fixed6" (map (lambda (f) (fpfmt-format-fixed f 6)) floats))
 (append-validate validate-csv "fpfmt_ss" "format_fixed17" (map (lambda (f) (fpfmt-format-fixed f 17)) floats))
-(append-validate validate-csv "fpfmt_ss" "parse_text"
-  (map (lambda (s) (number->string (double->bits (fpfmt-parse-text s)))) parse-texts))
+(append-validate validate-csv "fpfmt_ss" "parse_text" (map (lambda (s) (number->string (double->bits (fpfmt-parse-text s)))) parse-texts))

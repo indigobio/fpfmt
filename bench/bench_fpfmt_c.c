@@ -109,7 +109,7 @@ int main(void) {
 	write_csv(results, nr, "bench/results/bench_short.csv");
 	nr = 0;
 
-	// format short -- complete, apples-to-apples: pays for the sign/zero/inf/nan dispatch too
+	// format short -- complete
 	results[nr++] = (BenchResult){"fpfmt_c", "format_short", bench_short(dst, 25, f, nf, fpfmtc_format_short)};
 	scatter_short("fpfmt_c", f, nf, fpfmtc_format_short, "bench/results/scatter_format_short.csv");
 

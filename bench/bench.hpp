@@ -239,10 +239,7 @@ inline void write_scatter_csv(const std::vector<ScatterPoint>& points, const cha
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// validation -- records actual output values (not timings) per input index so
-// bench_validation.py can cross-check implementations against each other and against an
-// independent Fraction-based oracle. value is the formatted string for format ops, or the
-// resulting double's bit pattern (as a decimal uint64) for parse ops.
+// validation -- actual output values per input, for bench_validation.py
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct ValidatePoint {
 	std::string impl;

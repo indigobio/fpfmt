@@ -133,12 +133,6 @@
 )
 
 ;;; fixed width
-;;; Compared against fpfmt::format(f, nd), NOT the raw fixedWidth+fmt core --
-;;; Scheme's ~E formatting and number->string always pay for sign/zero/inf/nan
-;;; handling internally, same as fpfmt's format() wrapper, so this is the
-;;; apples-to-apples comparison. Comparing them against the bare fixedWidth/fmt
-;;; internals (which explicitly skip that handling) would give fpfmt an
-;;; unearned speed advantage.
 ;;; fixed6
 (let* ([scatter-inputs (map (lambda (f) (cons f (/ (log (abs f)) (log 2)))) floats)] [points (scatter scatter-inputs (lambda (f) (fixed-width-string f 6)))])
   (append-scatter (string-append results-dir "/scatter_format_fixed6.csv") "native_scheme" points)
@@ -172,5 +166,4 @@
 (append-validate validate-csv "native_scheme" "format_short" (map number->string floats))
 (append-validate validate-csv "native_scheme" "format_fixed6" (map (lambda (f) (fixed-width-string f 6)) floats))
 (append-validate validate-csv "native_scheme" "format_fixed17" (map (lambda (f) (fixed-width-string f 17)) floats))
-(append-validate validate-csv "native_scheme" "parse_text"
-  (map (lambda (s) (number->string (double->bits (string->number s)))) parse-texts))
+(append-validate validate-csv "native_scheme" "parse_text" (map (lambda (s) (number->string (double->bits (string->number s)))) parse-texts))

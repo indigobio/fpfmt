@@ -85,7 +85,7 @@ def load_scatter(pattern):
 		return None
 	return pd.concat(dfs, ignore_index=True)
 
-def plot_scatter(df, title, out_path, ylim):
+def plot_scatter(df, title, out_path):
 	fig, ax = plt.subplots(figsize=(10, 5))
 
 	impls = sorted(df["impl"].unique(), key=impl_order_key)
@@ -96,7 +96,6 @@ def plot_scatter(df, title, out_path, ylim):
 	ax.set_xlabel("log2(f)")
 	ax.set_ylabel("time (ns) [log scale]")
 	ax.set_yscale('log')
-	# ax.set_ylim(ylim)
 	ax.set_title(f"{title}\n{HW_LABEL}", fontsize=11)
 	ax.legend(markerscale=8, loc="upper left", fontsize=9)
 	ax.grid(True, alpha=0.3)
@@ -150,14 +149,14 @@ def main():
 	if df is None:
 		print(f"no data: scatter_fixed6.csv")
 	section(f"fixed6")
-	plot_scatter(df, f"FixedWidth(f, 6) — core algorithm", out(f"scatter_fixed6.pdf"), (0, 300))
+	plot_scatter(df, f"FixedWidth(f, 6) — core algorithm", out(f"scatter_fixed6.pdf"))
 	plot_cdf    (df, f"FixedWidth(f, 6) — core algorithm — CDF", out(f"cdf_fixed6.pdf"))
 
 	df = load_scatter(f"scatter_fixed17.csv")
 	if df is None:
 		print(f"no data: scatter_fixed17.csv")
 	section(f"fixed17")
-	plot_scatter(df, f"FixedWidth(f, 17) — core algorithm", out(f"scatter_fixed17.pdf"), (0, 2000))
+	plot_scatter(df, f"FixedWidth(f, 17) — core algorithm", out(f"scatter_fixed17.pdf"))
 	plot_cdf    (df, f"FixedWidth(f, 17) — core algorithm — CDF", out(f"cdf_fixed17.pdf"))
 
 	# short raw core algorithm
@@ -169,10 +168,10 @@ def main():
 		full = df[~df["impl"].str.contains("raw")]
 		raw  = df[ df["impl"].str.contains("raw")]
 		if not full.empty:
-			plot_scatter(full, "Fmt(Short(f)) — core algorithm", out("scatter_short.pdf"), (0, 250))
+			plot_scatter(full, "Fmt(Short(f)) — core algorithm", out("scatter_short.pdf"))
 			plot_cdf    (full, "Fmt(Short(f)) — core algorithm — CDF", out("cdf_short.pdf"))
 		if not raw.empty:
-			plot_scatter(raw, "Short(f) [raw]", out("scatter_short_raw.pdf"), (0, 250))
+			plot_scatter(raw, "Short(f) [raw]", out("scatter_short_raw.pdf"))
 			plot_cdf    (raw, "Short(f) [raw] — CDF", out("cdf_short_raw.pdf"))
 
 	# format complete
@@ -181,7 +180,7 @@ def main():
 		print("no data: scatter_format_short.csv")
 	else:
 		section("format_short")
-		plot_scatter(df, "Format(f) — complete", out("scatter_format_short.pdf"), (0, 300))
+		plot_scatter(df, "Format(f) — complete", out("scatter_format_short.pdf"))
 		plot_cdf    (df, "Format(f) — complete — CDF", out("cdf_format_short.pdf"))
 
 	for nd in (6, 17):
@@ -190,7 +189,7 @@ def main():
 			print(f"no data: scatter_format_fixed{nd}.csv")
 			continue
 		section(f"format_fixed{nd}")
-		plot_scatter(df, f"Format(f, {nd}) — complete", out(f"scatter_format_fixed{nd}.pdf"), (0, 2000))
+		plot_scatter(df, f"Format(f, {nd}) — complete", out(f"scatter_format_fixed{nd}.pdf"))
 		plot_cdf    (df, f"Format(f, {nd}) — complete — CDF", out(f"cdf_format_fixed{nd}.pdf"))
 
 	# parse
@@ -202,10 +201,10 @@ def main():
 		raw  = df[ df["impl"].str.contains("raw")]
 		text = df[~df["impl"].str.contains("raw")]
 		if not raw.empty:
-			plot_scatter(raw, "Parse(d, p) [raw]", out("scatter_parse_raw.pdf"), (0, 60))
+			plot_scatter(raw, "Parse(d, p) [raw]", out("scatter_parse_raw.pdf"))
 			plot_cdf    (raw, "Parse(d, p) [raw] — CDF", out("cdf_parse_raw.pdf"))
 		if not text.empty:
-			plot_scatter(text, "Parse(text)", out("scatter_parse_text.pdf"), (0, 60))
+			plot_scatter(text, "Parse(text)", out("scatter_parse_text.pdf"))
 			plot_cdf    (text, "Parse(text) — CDF", out("cdf_parse_text.pdf"))
  
 if __name__ == "__main__":

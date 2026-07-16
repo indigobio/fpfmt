@@ -248,7 +248,7 @@ double parseText(const char* start, const char* end) {
 	for (; s < end && *s >= '0' && *s <= '9'; s++) {
 		int digit = *s - '0';
 		if (ndigits < 19) {
-			if (ndigits > 0 || digit != 0) d = d * 10 + (uint64_t)digit; ndigits++;
+			if (ndigits > 0 || digit != 0) { d = d * 10 + (uint64_t)digit; ndigits++; }
 		} else extraIntDigits++;
 	}
 
@@ -257,7 +257,7 @@ double parseText(const char* start, const char* end) {
 		for (; s < end && *s >= '0' && *s <= '9'; s++) {
 			int digit = *s - '0';
 			if (ndigits < 19) {
-				if (ndigits > 0 || digit != 0) d = d * 10 + (uint64_t)digit; ndigits++;
+				if (ndigits > 0 || digit != 0) { d = d * 10 + (uint64_t)digit; ndigits++; }
 				frac++;
 			}
 		}

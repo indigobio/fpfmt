@@ -1,42 +1,41 @@
+#include "../src/fpfmt_unopt.hpp"
 #include "bench.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // fpfmt_unopt wrappers
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static void fpfmt_unopt_fixed(char *dst, double f, int nd) {
-	auto [d, p] = unopt::fixedWidth(f, nd);
-	int n = unopt::fmt(dst, d, p, nd);
+	auto [d, p] = fixedWidth(f, nd);
+	int n = fmt(dst, d, p, nd);
 	dst[n] = '\0';
 }
 
 static void fpfmt_unopt_short(char *dst, double f) {
-	auto [d, p] = unopt::shortWidth(f);
-	int nd = unopt::digits(d);
-	int n = unopt::fmt(dst, d, p, nd);
+	auto [d, p] = shortWidth(f);
+	int nd = digits(d);
+	int n = fmt(dst, d, p, nd);
 	dst[n] = '\0';
 }
 
 static void fpfmt_unopt_short_raw(uint64_t *dp, int64_t *pp, double f) {
-	auto [d, p] = unopt::shortWidth(f);
+	auto [d, p] = shortWidth(f);
 	*dp = d;
 	*pp = p;
 }
 
 static void fpfmt_unopt_format_short(char *dst, double f) {
-	int n = unopt::format(dst, f);
+	int n = format(dst, f);
 	dst[n] = '\0';
 }
 
 static void fpfmt_unopt_format_fixed(char *dst, double f, int nd) {
-	int n = unopt::format(dst, f, nd);
+	int n = format(dst, f, nd);
 	dst[n] = '\0';
 }
 
-static double fpfmt_unopt_parse_raw(uint64_t d, int p) { return unopt::parse(d, p); }
+static double fpfmt_unopt_parse_raw(uint64_t d, int p) { return parse(d, p); }
 
-static double fpfmt_unopt_parse_text(char *start, char *end) {
-	return unopt::parseText(start, end);
-}
+static double fpfmt_unopt_parse_text(char *start, char *end) { return parseText(start, end); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // helpers
@@ -44,8 +43,8 @@ static double fpfmt_unopt_parse_text(char *start, char *end) {
 static void gen_text(const std::vector<double> &floats, std::vector<char> &buf) {
 	char tmp[64];
 	for (double f : floats) {
-		auto [d, p] = unopt::fixedWidth(f, 17);
-		int n = unopt::fmt(tmp, d, p, 17);
+		auto [d, p] = fixedWidth(f, 17);
+		int n = fmt(tmp, d, p, 17);
 		tmp[n] = '\n';
 		buf.insert(buf.end(), tmp, tmp + n + 1);
 	}
@@ -56,8 +55,8 @@ static std::vector<std::string> gen_text_strings(const std::vector<double> &floa
 	std::vector<std::string> out;
 	char tmp[64];
 	for (double f : floats) {
-		auto [d, p] = unopt::fixedWidth(f, 17);
-		int n = unopt::fmt(tmp, d, p, 17);
+		auto [d, p] = fixedWidth(f, 17);
+		int n = fmt(tmp, d, p, 17);
 		tmp[n] = '\0';
 		out.push_back(std::string(tmp, n));
 	}
@@ -66,7 +65,7 @@ static std::vector<std::string> gen_text_strings(const std::vector<double> &floa
 
 static void gen_raw(const std::vector<double> &floats, std::vector<int64_t> &raw) {
 	for (double f : floats) {
-		auto [d, p] = unopt::fixedWidth(f, 17);
+		auto [d, p] = fixedWidth(f, 17);
 		raw.push_back((int64_t)d);
 		raw.push_back((int64_t)p);
 	}

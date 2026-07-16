@@ -12,8 +12,6 @@
 #include <cstdlib>
 #include <sstream>
 #include <charconv>
-#include "../src/fpfmt.hpp"
-#include "../src/fpfmt_unopt.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // timing

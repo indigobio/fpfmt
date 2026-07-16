@@ -26,13 +26,14 @@ FFI_LIB = bench/libfpfmt_ffi.$(SHARED_EXT)
 
 TEST_SRCS = $(wildcard tests/*.cpp)
 TESTS = $(TEST_SRCS:.cpp=)
+TESTS_UNOPT = $(addsuffix _unopt,$(TESTS))
 TEST_SRCS_C = $(wildcard tests/*_c.c)
 TESTS_C = $(TEST_SRCS_C:.c=)
 BENCH_SRCS = $(wildcard bench/bench_*.cpp)
 BENCHES = $(BENCH_SRCS:.cpp=)
 FLOATS_GEN = util/gen_floats
 
-.PHONY: all test test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_c bench_ruby bench_scheme bench_fpfmt_ss
+.PHONY: all test test_unopt test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_c bench_ruby bench_scheme bench_fpfmt_ss
 
 all: $(OBJ)
 
@@ -44,6 +45,9 @@ $(OBJ_UNOPT): $(SRC_UNOPT) src/fpfmt_unopt.hpp
 
 tests/%: tests/%.cpp $(OBJ) src/fpfmt.hpp
 	$(CXX) $(CXXFLAGS) $< $(OBJ) -o $@
+
+tests/%_unopt: tests/%.cpp $(OBJ_UNOPT) src/fpfmt_unopt.hpp
+	$(CXX) $(CXXFLAGS) -DFPFMT_TEST_UNOPT $< $(OBJ_UNOPT) -o $@
 
 $(OBJ_C): $(SRC_C) src/fpfmt_c.h src/pow10.h
 	$(CC) $(CFLAGS_C99) -c $(SRC_C) -o $(OBJ_C)
@@ -79,6 +83,18 @@ test: $(TESTS)
 	@echo "\n=== running tests ===\n"
 	@failed=0; \
 	for t in $(TESTS); do \
+		echo "--- $$t ---"; \
+		./$$t || failed=1; \
+		echo; \
+	done; \
+	if [ $$failed -eq 0 ]; then echo "=== ALL PASSED ==="; \
+	else echo "=== SOME FAILED ==="; exit 1; fi
+	$(MAKE) clean
+
+test_unopt: $(TESTS_UNOPT)
+	@echo "\n=== running tests (unopt) ===\n"
+	@failed=0; \
+	for t in $(TESTS_UNOPT); do \
 		echo "--- $$t ---"; \
 		./$$t || failed=1; \
 		echo; \
@@ -195,7 +211,7 @@ validate_benches:
 	python3 validate/validate_benches.py
 
 clean:
-	rm -f $(OBJ) $(TESTS) $(OBJ_UNOPT) $(OBJ_C) $(TESTS_C) $(BENCHES) bench/bench_uscale bench/bench_fpfmt_c bench/bench_c $(FLOATS_GEN) $(FFI_LIB)
+	rm -f $(OBJ) $(TESTS) $(TESTS_UNOPT) $(OBJ_UNOPT) $(OBJ_C) $(TESTS_C) $(BENCHES) bench/bench_uscale bench/bench_fpfmt_c bench/bench_c $(FLOATS_GEN) $(FFI_LIB)
 	rm -rf $(wildcard tests/*.dSYM) $(wildcard bench/*.dSYM)
 
 clean_results:

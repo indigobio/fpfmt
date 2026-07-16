@@ -232,17 +232,29 @@ namespace unopt {
 		if (ci_equals(start, end, "nan")) return neg ? -std::nan("") : std::nan("");
 		if (ci_equals(start, end, "inf") || ci_equals(start, end, "infinity")) return neg ? -HUGE_VAL : HUGE_VAL;
 
-		// accumulate digits into d; frac counts fractional digits to fold into p below
+		// accumulate digits into d; frac counts fractional digits to fold into p below.
+		// caps at 19 sig digits to avoid overflowing d; extra int digits widen the
+		// exponent instead (extraIntDigits). leading zeros are free.
 		uint64_t d = 0;
+		int ndigits = 0;
+		int extraIntDigits = 0;
 		int frac = 0;
 		const char* s = start;
-		for (; s < end && *s >= '0' && *s <= '9'; s++) d = d * 10 + (*s - '0');
+		for (; s < end && *s >= '0' && *s <= '9'; s++) {
+			int digit = *s - '0';
+			if (ndigits < 19) {
+				if (ndigits > 0 || digit != 0) d = d * 10 + (uint64_t)digit; ndigits++;
+			} else extraIntDigits++;
+		}
 
 		if (s < end && *s == '.') {
 			s++;
 			for (; s < end && *s >= '0' && *s <= '9'; s++) {
-				d = d * 10 + (*s - '0');
-				frac++;
+				int digit = *s - '0';
+				if (ndigits < 19) {
+					if (ndigits > 0 || digit != 0) d = d * 10 + (uint64_t)digit; ndigits++;
+					frac++;
+				}
 			}
 		}
 
@@ -261,8 +273,8 @@ namespace unopt {
 
 		if (d == 0) return neg ? -0.0 : 0.0;
 
-		// subtract frac to fold the fractional digits back into the exponent
-		double m = parse(d, p - frac);
+		// subtract frac, add extraIntDigits back into the exponent
+		double m = parse(d, p - frac + extraIntDigits);
 		return neg ? -m : m;
 	}
 

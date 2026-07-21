@@ -153,6 +153,87 @@ FloatRep trimZeros(FloatRep fr) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// fpfmt formatting
+///////////////////////////////////////////////////////////////////////////////////////////////////
+int digits(uint64_t d) {
+	// approximate digit count from bit length, then correct for undershoot
+	int n = log10Pow2(bits_len64(d));
+	return n + (d >= uint64pow10[n]);
+}
+
+void formatBase10(char* a, uint64_t d, int n) {
+	// peel off 8 digits at a time via the i2a lookup table, right to left
+	while ((d >> 32) != 0) {
+		uint32_t x = d % 100000000;
+		d /= 100000000;
+		uint32_t y = x % 10000;
+		x /= 10000;
+		uint32_t x1 = (x / 100) * 2;
+		uint32_t x0 = (x % 100) * 2;
+		uint32_t y1 = (y / 100) * 2;
+		uint32_t y0 = (y % 100) * 2;
+		memcpy(a + n - 8, i2a + x1, 2);
+		memcpy(a + n - 6, i2a + x0, 2);
+		memcpy(a + n - 4, i2a + y1, 2);
+		memcpy(a + n - 2, i2a + y0, 2);
+		n -= 8;
+	}
+
+	// remaining digits fit in 32 bits; peel off 4, then 2, then the last 1-2 by hand
+	uint32_t h = d;
+	while(h >= 10000) {
+		uint32_t x = h % 10000;
+		h /= 10000;
+		uint32_t x1 = (x / 100) * 2;
+		uint32_t x0 = (x % 100) * 2;
+		memcpy(a + n - 4, i2a + x1, 2);
+		memcpy(a + n - 2, i2a + x0, 2);
+		n -= 4;
+	}
+	if(h >= 100) {
+		uint32_t x = h % 100;
+		h /= 100;
+		memcpy(a + n - 2, i2a + 2 * x, 2);
+		n -= 2;
+	}
+	if(h >= 10) {
+		memcpy(a + n - 2, i2a + 2 * h, 2);
+		return;
+	}
+	a[n - 1] = '0' + h;
+}
+
+int fmt(char* s, uint64_t d, int p, int n) {
+	// write digits into s[1..n], then move the leading digit into s[0] for the decimal point
+	formatBase10(s + 1, d, n);
+	p += n - 1;
+
+	s[0] = s[1];
+	int i = n;
+	if (i > 1) {
+		s[1] = '.';
+		i++;
+	}
+
+	// append exponent: sign, then up to 3 digits via i2a
+	s[i] = 'e';
+	if (p < 0){
+		s[i + 1] = '-';
+		p = -p;
+	} else s[i + 1] = '+';
+
+	if (p < 100) {
+		s[i + 2] = i2a[p * 2];
+		s[i + 3] = i2a[p * 2 + 1];
+		return i + 4;
+	}
+	s[i + 2] = '0' + p / 100;
+	s[i + 3] = i2a[(p % 100) * 2];
+	s[i + 4] = i2a[(p % 100) * 2 + 1];
+	return i + 5;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // fpfmt main methods
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 FloatRep fixedWidth(double f, int n) {
@@ -361,85 +442,4 @@ int format(char* s, double f, int n) {
 
 	auto [d, p] = shortWidth(f);
 	return offset + fmt(s + offset, d, p, digits(d));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// fpfmt formatting
-///////////////////////////////////////////////////////////////////////////////////////////////////
-int digits(uint64_t d) {
-	// approximate digit count from bit length, then correct for undershoot
-	int n = log10Pow2(bits_len64(d));
-	return n + (d >= uint64pow10[n]);
-}
-
-void formatBase10(char* a, uint64_t d, int n) {
-	// peel off 8 digits at a time via the i2a lookup table, right to left
-	while ((d >> 32) != 0) {
-		uint32_t x = d % 100000000;
-		d /= 100000000;
-		uint32_t y = x % 10000;
-		x /= 10000;
-		uint32_t x1 = (x / 100) * 2;
-		uint32_t x0 = (x % 100) * 2;
-		uint32_t y1 = (y / 100) * 2;
-		uint32_t y0 = (y % 100) * 2;
-		memcpy(a + n - 8, i2a + x1, 2);
-		memcpy(a + n - 6, i2a + x0, 2);
-		memcpy(a + n - 4, i2a + y1, 2);
-		memcpy(a + n - 2, i2a + y0, 2);
-		n -= 8;
-	}
-
-	// remaining digits fit in 32 bits; peel off 4, then 2, then the last 1-2 by hand
-	uint32_t h = d;
-	while(h >= 10000) {
-		uint32_t x = h % 10000;
-		h /= 10000;
-		uint32_t x1 = (x / 100) * 2;
-		uint32_t x0 = (x % 100) * 2;
-		memcpy(a + n - 4, i2a + x1, 2);
-		memcpy(a + n - 2, i2a + x0, 2);
-		n -= 4;
-	}
-	if(h >= 100) {
-		uint32_t x = h % 100;
-		h /= 100;
-		memcpy(a + n - 2, i2a + 2 * x, 2);
-		n -= 2;
-	}
-	if(h >= 10) {
-		memcpy(a + n - 2, i2a + 2 * h, 2);
-		return;
-	}
-	a[n - 1] = '0' + h;
-}
-
-int fmt(char* s, uint64_t d, int p, int n) {
-	// write digits into s[1..n], then move the leading digit into s[0] for the decimal point
-	formatBase10(s + 1, d, n);
-	p += n - 1;
-
-	s[0] = s[1];
-	int i = n;
-	if (i > 1) {
-		s[1] = '.';
-		i++;
-	}
-
-	// append exponent: sign, then up to 3 digits via i2a
-	s[i] = 'e';
-	if (p < 0){
-		s[i + 1] = '-';
-		p = -p;
-	} else s[i + 1] = '+';
-
-	if (p < 100) {
-		s[i + 2] = i2a[p * 2];
-		s[i + 3] = i2a[p * 2 + 1];
-		return i + 4;
-	}
-	s[i + 2] = '0' + p / 100;
-	s[i + 3] = i2a[(p % 100) * 2];
-	s[i + 4] = i2a[(p % 100) * 2 + 1];
-	return i + 5;
 }

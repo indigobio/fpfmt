@@ -43,7 +43,7 @@ else()
 	message(STATUS "fpfmt: compiler: ${CMAKE_C_COMPILER_ID} (${CMAKE_C_COMPILER})")
 
 	if(FPFMT_WASM)
-		add_executable(fpfmt "${FPFMT_SRC_DIR}/fpfmt_c.c" "${FPFMT_SRC_DIR}/wasm_wrapper.c")
+		add_executable(fpfmt "${FPFMT_SRC_DIR}/fpfmt_c.c" "${FPFMT_SRC_DIR}/fpfmt_wasm.c")
 		target_link_options(fpfmt PRIVATE
 			"SHELL:-s MODULARIZE=1"
 			"SHELL:-s EXPORT_NAME=FpfmtModule"

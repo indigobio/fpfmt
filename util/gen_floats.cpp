@@ -1,5 +1,7 @@
 #include <cstdint>
 #include <vector>
+#include <cstring>
+#include <cstdio>
 
 // generates the shared benchmark float set once and writes it as raw IEEE-754
 // bit patterns to data/floats.csv, so every bench (C++, Ruby, Scheme) can load

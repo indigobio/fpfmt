@@ -8,9 +8,11 @@ SRC = src/fpfmt.cpp
 SRC_UNOPT = src/fpfmt_unopt.cpp
 SRC_FFI = src/fpfmt_ffi.cpp
 SRC_C = src/fpfmt_c.c
+SRC_C_OPT = src/fpfmt_c_opt.c
 OBJ = src/fpfmt.o
 OBJ_UNOPT = src/fpfmt_unopt.o
 OBJ_C = src/fpfmt_c.o
+OBJ_C_OPT = src/fpfmt_c_opt.o
 
 CHEZ = chez
 
@@ -33,7 +35,7 @@ BENCH_SRCS = $(wildcard bench/bench_*.cpp)
 BENCHES = $(BENCH_SRCS:.cpp=)
 FLOATS_GEN = util/gen_floats
 
-.PHONY: all test test_unopt test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_cpp bench_c bench_ruby bench_scheme bench_fpfmt_ss
+.PHONY: all test test_unopt test_c bench floats validate clean clean_results plots bench_fpfmt bench_fpfmt_unopt bench_uscale bench_fpfmt_c bench_fpfmt_c_opt bench_fpfmt_asm bench_cpp bench_c bench_ruby bench_scheme bench_fpfmt_ss
 
 all: $(OBJ)
 
@@ -51,6 +53,9 @@ tests/%_unopt: tests/%.cpp $(OBJ_UNOPT) src/fpfmt_unopt.hpp
 
 $(OBJ_C): $(SRC_C) src/fpfmt_c.h src/pow10.h
 	$(CC) $(CFLAGS_C99) -c $(SRC_C) -o $(OBJ_C)
+
+$(OBJ_C_OPT): $(SRC_C_OPT) src/fpfmt_c.h src/pow10.h
+	$(CC) $(CFLAGS_C99) -c $(SRC_C_OPT) -o $(OBJ_C_OPT)
 
 tests/%_c: tests/%_c.c $(OBJ_C) src/fpfmt_c.h
 	$(CC) $(CFLAGS_C99) $< $(OBJ_C) -lm -o $@
@@ -72,6 +77,9 @@ bench/bench_uscale: bench/bench_uscale.c src/uscale.c src/pow10.h bench/bench.h
 
 bench/bench_fpfmt_c: bench/bench_fpfmt_c.c $(OBJ_C) src/fpfmt_c.h bench/bench.h
 	$(CC) $(CFLAGS_C99) $< $(OBJ_C) -lm -o $@
+
+bench/bench_fpfmt_c_opt: bench/bench_fpfmt_c_opt.c $(OBJ_C_OPT) src/fpfmt_c.h bench/bench.h
+	$(CC) $(CFLAGS_C99) $< $(OBJ_C_OPT) -lm -o $@
 
 bench/bench_c: bench/bench_c.c bench/bench.h
 	$(CC) $(CFLAGS_C99) $< -lm -o $@
@@ -149,6 +157,12 @@ bench_fpfmt_c: bench/bench_fpfmt_c | bench/results
 	./bench/bench_fpfmt_c; \
 	echo "elapsed: $$(($$(date +%s) - start))s\n"
 
+bench_fpfmt_c_opt: bench/bench_fpfmt_c_opt | bench/results
+	@echo "--- bench_fpfmt_c_opt ---"; \
+	start=$$(date +%s); \
+	./bench/bench_fpfmt_c_opt; \
+	echo "elapsed: $$(($$(date +%s) - start))s\n"
+
 bench_cpp: bench/bench_cpp | bench/results
 	@echo "--- bench_cpp ---"; \
 	start=$$(date +%s); \
@@ -196,7 +210,9 @@ bench: floats clean_results
 	start=$$(date +%s); \
 	$(MAKE) bench_fpfmt; \
 	$(MAKE) bench_fpfmt_unopt; \
-	$(MAKE) bench_uscale bench_fpfmt_c; \
+	$(MAKE) bench_uscale; \
+	$(MAKE) bench_fpfmt_c; \
+	$(MAKE) bench_fpfmt_c_opt; \
 	$(MAKE) bench_cpp; \
 	$(MAKE) bench_c; \
 	$(MAKE) bench_ruby; \
@@ -211,7 +227,7 @@ validate_benches:
 	python3 validate/validate_benches.py
 
 clean:
-	rm -f $(OBJ) $(TESTS) $(TESTS_UNOPT) $(OBJ_UNOPT) $(OBJ_C) $(TESTS_C) $(BENCHES) bench/bench_uscale bench/bench_fpfmt_c bench/bench_c $(FLOATS_GEN) $(FFI_LIB)
+	rm -f $(OBJ) $(TESTS) $(TESTS_UNOPT) $(OBJ_UNOPT) $(OBJ_C) $(OBJ_C_OPT) $(OBJ_ASM_C) $(OBJ_ASM_S) $(TESTS_C) $(BENCHES) bench/bench_uscale bench/bench_fpfmt_c bench/bench_fpfmt_c_opt bench/bench_fpfmt_asm bench/bench_c $(FLOATS_GEN) $(FFI_LIB)
 	rm -rf $(wildcard tests/*.dSYM) $(wildcard bench/*.dSYM)
 
 clean_results:

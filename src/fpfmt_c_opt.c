@@ -232,17 +232,13 @@ static bool isEightDigits(const char *chars) {
   return hiOk && loOk;
 }
 
-// converts 8 bytes already validated by isEightDigits into their integer value
-// using two widening multiplies instead of 8 serial multiply-adds -- shortens
-// the accumulation's dependency chain rather than just skipping validation work
 static uint32_t parseEightDigits(const char *chars) {
   uint64_t val;
   memcpy(&val, chars, 8);
 
   val -= 0x3030303030303030ULL;
   val = (val * 10) + (val >> 8);
-  uint64_t v2 = ((val & 0x000000FF000000FFULL) * 0x000F424000000064ULL)
-              + (((val >> 16) & 0x000000FF000000FFULL) * 0x0000271000000001ULL);
+  uint64_t v2 = ((val & 0x000000FF000000FFULL) * 0x000F424000000064ULL) + (((val >> 16) & 0x000000FF000000FFULL) * 0x0000271000000001ULL);
   return (uint32_t)(v2 >> 32);
 }
 
@@ -427,28 +423,18 @@ double parseText(const char* start, const char* end) {
 	int frac = 0;
 	const char* s = start;
 
-	// bulk-skip confirmed leading '0' bytes, 8 at a time, while still hunting
-	// for the first significant digit -- gate on *s == '0' first (cheap) so a
-	// number that doesn't start with a zero never pays for the 8-byte call,
-	// same "cheap check before the expensive cascade" shape as trimZeros
 	while (ndigits == 0 && end - s >= 8 && *s == '0') {
 		int nz = ignoreLeadingZeros(s);
 		s += nz;
 		if (nz < 8) break;
 	}
-	// consume one char at a time until the first nonzero digit is found (or a
-	// non-digit ends the run) -- matches the free-leading-zero behavior above
+
 	while (ndigits == 0 && s < end && *s >= '0' && *s <= '9') {
 		int digit = *s - '0';
 		s++;
 		if (digit != 0) { d = (uint64_t)digit; ndigits = 1; break; }
 	}
-	// every digit counts now; bulk-consume full validated 8-byte chunks, then
-	// hand the remainder (0-7 digits, or the cap-overflow tail) to the plain
-	// scalar loop -- cheaper than cascading down through 4/2/1-byte checks,
-	// since the accumulation itself is still one multiply-add per digit either way.
-	// same cheap-gate trick here: *s being a digit is required for isEightDigits
-	// to succeed anyway, so checking it first skips guaranteed-to-fail calls
+
 	while (ndigits > 0 && ndigits + 8 <= 19 && end - s >= 8 && *s >= '0' && *s <= '9' && isEightDigits(s)) {
 		d = d * 100000000ULL + parseEightDigits(s);
 		ndigits += 8;
@@ -481,8 +467,7 @@ double parseText(const char* start, const char* end) {
 			frac += 8;
 			s += 8;
 		}
-		// past the 19-digit cap: remaining fractional digits are silently
-		// dropped (not counted in frac), matching the original behavior
+
 		for (; s < end && *s >= '0' && *s <= '9'; s++) {
 			int digit = *s - '0';
 			if (ndigits < 19) { d = d * 10 + (uint64_t)digit; ndigits++; frac++; }

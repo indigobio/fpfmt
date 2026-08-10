@@ -44,18 +44,30 @@ def hardware_label():
 HW_LABEL = hardware_label()
 
 IMPL_COLORS = {
-	"fpfmt_unopt":  "#f69948",
-	"fpfmt_ss":     "#e498f3",
-	"fpfmt_c":      "#17becf",
-	"fpfmt":        "#2ca02c",
-	"uscale": 			"#1f77b4",
-	"native_cpp":		"#282BD2",
-	"native_c":     "#8c564b",
-	"native_ruby":  "#d62728",
-	"native_scheme":"#9E36F8",
+	"fpfmt_unopt":   "#f69948",
+	"fpfmt_ss":      "#e498f3",
+	"fpfmt_c":       "#17becf",
+	"fpfmt_c_opt":   "#EFFF42",
+	"fpfmt":         "#2ca02c",
+	"uscale":        "#1f77b4",
+	"native_cpp":    "#282BD2",
+	"native_c":      "#8c564b",
+	"native_ruby":   "#d62728",
+	"native_scheme": "#9E36F8",
 }
 
-IMPL_ORDER = ["fpfmt", "fpfmt_unopt", "fpfmt_ss", "fpfmt_c", "uscale", "native_cpp", "native_c", "native_ruby", "native_scheme"]
+IMPL_ORDER = [
+	"fpfmt",
+	"fpfmt_unopt",
+	"fpfmt_ss",
+	"fpfmt_c",
+	"fpfmt_c_opt",
+	"uscale",
+	"native_cpp",
+	"native_c",
+	"native_ruby",
+	"native_scheme"
+]
 
 PLOTLY_CONFIG = {
 	"scrollZoom": True,
@@ -63,7 +75,7 @@ PLOTLY_CONFIG = {
 	"displaylogo": False,
 	"responsive": True,
 	"modeBarButtonsToRemove": [
-			"select2d", "lasso2d", "zoom2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "pan2d",
+		"select2d", "lasso2d", "zoom2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "pan2d",
 	],
 }
 
